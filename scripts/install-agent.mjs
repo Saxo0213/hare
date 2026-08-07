@@ -95,7 +95,8 @@ const ADAPTERS = {
       : ["mcp", "add", ...scope, "hare", "--", "node", join(REPO, "mcp-server.mjs")];
     log(`[claude] MCP：claude ${add.join(" ")}`);
     if (dryRun) return;
-    const run = (a) => spawnSync("claude", a, { cwd: targetRoot, shell: true, encoding: "utf8" });
+    // shell 模式傳單一字串（shell 配 args 陣列＝DEP0190）；參數由本檔自組，無外來輸入
+    const run = (a) => spawnSync(["claude", ...a].join(" "), { cwd: targetRoot, shell: true, encoding: "utf8" });
     run(["mcp", "remove", ...scope, "hare"]); // 冪等
     const r = run(add);
     if (r.error || r.status !== 0) console.error(`⚠ claude CLI 不可用，請手動執行：claude ${add.join(" ")}`);
