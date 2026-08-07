@@ -1,0 +1,33 @@
+{
+  "name": "hare",
+  "private": true,
+  "version": "0.1.0",
+  "description": "HARE——給人與 AI agent 共用的依賴圖路線白板（React Flow + MCP），單一 Node 伺服器出前端/REST/SSE/MCP",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "mcp": "node mcp-server.mjs",
+    "serve": "node server.mjs",
+    "tauri": "tauri",
+    "test": "node --test \"test/*.test.mjs\"",
+    "gate": "node --test \"test/*.test.mjs\" && vite build",
+    "install-agent": "node scripts/install-agent.mjs"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^3.0.0",
+    "@xyflow/react": "^12.3.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^5.4.10"
+  }
+}

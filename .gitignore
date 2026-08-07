@@ -1,0 +1,51 @@
+node_modules/
+dist/
+*.local
+.env
+.DS_Store
+Thumbs.db
+# 執行期資料（多專案化後的實際使用者資料不入版控；範例種子除外）
+*-changelog.jsonl
+.vite/
+!data-archive/*
+.playwright-mcp/
+roadmap-data.json.bak-*
+rescue-*.json
+
+# agent worktrees (transient, isolated git repos)
+.claude/worktrees/
+
+# 競品研究：複製的外部原始碼不入版控（分析文件 research/*.md 照常追蹤）
+research/repos/
+
+# chat 通道執行期資料（session 對照與轉錄）
+data/chat/
+
+# Tauri 殼（W3-1 POC）：Rust 建置產物不入版控
+src-tauri/target/
+src-tauri/gen/
+
+# 伺服器隱藏啟動日誌（儀錶板讀取）
+data/server.log
+data/server-err.log
+data/dash.json
+
+# 執行期白板資料：使用者自己的專案板不入版控（種子板與登錄表例外）
+data/*.json
+!data/projects.json
+data/*-changelog.jsonl
+data/archive/
+data-archive/
+# 卡片素材：只保留種子板引用中的圖，其餘（對話附件、其他專案）不入版控
+data/assets/*
+!data/assets/default/
+data/assets/default/*
+!data/assets/default/mrj0wgnq-image.png
+!data/assets/default/mrj6fkik-image.png
+!data/assets/default/mrjxx5mr-region-R3.png
+!data/assets/default/mrjxxb8h-region-R2.png
+!data/assets/default/mrts95z5-r2-result.png
+
+# 第三方競品素材／內部研究，不隨產品散布
+docs/
+research/

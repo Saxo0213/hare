@@ -1,0 +1,12 @@
+{
+  "name": "HARE — Human-Agent Roadmap Editor",
+  "short_name": "HARE",
+  "description": "人與 AI agent 共用的依賴圖路線白板",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f9d6b",
+  "icons": [
+    { "src": "hare-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

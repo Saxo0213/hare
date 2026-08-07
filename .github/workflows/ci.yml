@@ -1,0 +1,22 @@
+name: CI
+
+# 回歸測試 + 前端建置（零 runtime 依賴，僅 dev 依賴 vite）。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dev deps (vite only; runtime 零依賴)
+        run: npm ci
+      - name: Run regression tests (node --test)
+        run: node --test
+      - name: Build frontend (vite)
+        run: npx vite build
