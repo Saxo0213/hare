@@ -1,7 +1,6 @@
 # HARE — Human-Agent Roadmap Editor
 
-給「人＋AI agent」共用的依賴圖路線白板。人用瀏覽器拖卡片、agent 走 MCP 讀寫卡片，
-雙方以卡片編號（B4、W1-3…）溝通任務與進度。
+給「人＋AI agent」共用的依賴圖路線白板。
 
 - **依賴圖白板**：卡片＝任務／模組，連線＝依賴，可分頁、可巢狀容器。
 - **agent 原生**：內建 MCP 伺服器（stdio ＋ HTTP），agent 直接建卡、拉線、認領、銷任務。
