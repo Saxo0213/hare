@@ -87,7 +87,11 @@ test("interrupt：中斷進行中 turn → idle＋中斷紀錄", async () => {
   assert.equal(r.ok, true);
   const c = await idle("chatp3", "card_c");
   assert.equal(c.status, "idle");
-  assert.ok(c.messages.some((m) => m.role === "system" && m.text.includes("中斷")));
+  // 中斷紀錄可能比 idle 狀態晚一拍落檔——輪詢等它出現（等不到照樣 timeout 紅）
+  await until(async () => {
+    const cc = await chat.getChat("chatp3", "card_c");
+    return cc.messages.some((m) => m.role === "system" && m.text.includes("中斷")) ? cc : null;
+  });
   delete process.env.FAKE_BEHAVIOR;
 });
 
@@ -97,8 +101,8 @@ test("異常結束：exit 1 → status=error＋錯誤紀錄含 stderr", async ()
   await chat.sendMessage("chatp4", "card_d", "會爆");
   const c = await idle("chatp4", "card_d");
   assert.equal(c.status, "error");
-  // flaky 防治（2026-08-02 整合閘門誤紅事故）：曾間歇性讀不到剛落檔的錯誤訊息——
-  // 單發斷言改輪詢等待，語意不變（boom 必須出現，等不到照樣 timeout 紅）
+  // 錯誤訊息落檔有延遲，單發斷言會間歇讀不到——改輪詢等待，語意不變
+  // （boom 必須出現，等不到照樣 timeout 紅）
   await until(async () => {
     const cc = await chat.getChat("chatp4", "card_d");
     return cc.messages.some((m) => m.role === "error" && m.text.includes("boom")) ? cc : null;
@@ -137,7 +141,7 @@ test("HARE 自家工具自動放行：mcp__hare__* 與 hare 系 skill 不浮出�
 
 test("權限回問：逾時＝拒絕（deny）", async () => {
   chat.configureChat({ permissionTimeoutMs: 60 });
-  // 界外路徑才會回問（2026-08-02 檔案工具政策：界內 Edit/Write 自動放行）——逾時語意不變
+  // 界外路徑才會回問（界內 Edit/Write 自動放行）——逾時語意不變
   const result = await chat.requestPermission("chatp6", "card_f", "Write", { file_path: "C:/outside-evil/x.txt" });
   assert.equal(result.behavior, "deny");
   chat.configureChat({ permissionTimeoutMs: 180000 });
@@ -254,8 +258,8 @@ test("三檔核可：session 白名單自動放行、危險指令仍浮出、alw
   const pend3 = await until(async () => { const l = await chat.listPending("chatp12"); return l.length ? l : null; });
   await chat.resolvePermission("chatp12", pend3[0].id, false);
   assert.equal((await p3).behavior, "deny");
-  // ④ 工具 always＝專案級白名單：跨卡也放行（界外路徑才回問——2026-08-02 檔案工具政策後
-  //    界內 Write 自動放行，白名單機制改以界外樣本驗證）
+  // ④ 工具 always＝專案級白名單：跨卡也放行（界內 Write 本來就自動放行，
+  //    白名單機制以界外樣本驗證）
   const p4 = chat.requestPermission("chatp12", "card_w", "Write", { file_path: "C:/outside-wl/x.txt" });
   const pend4 = await until(async () => { const l = await chat.listPending("chatp12"); return l.length ? l : null; });
   await chat.resolvePermission("chatp12", pend4[0].id, true, "always");
@@ -266,7 +270,7 @@ test("三檔核可：session 白名單自動放行、危險指令仍浮出、alw
 
 test("EXECUTORS 資料列：codex 列解析實機事件格式；claude 列組旗標", () => {
   const cx = chat.EXECUTORS.codex;
-  // 事件樣本＝2026-07-18 實機 `codex exec --json` 結構冒煙輸出
+  // 事件樣本＝實機 `codex exec --json` 的事件結構
   assert.deepEqual(cx.parseEvent({ type: "thread.started", thread_id: "019f-abc" }), { sessionId: "019f-abc" });
   const fail = cx.parseEvent({ type: "turn.failed", error: { message: "requires a newer version" } });
   assert.ok(fail.result && fail.error.includes("newer"));
@@ -327,7 +331,6 @@ test("sendMessage 驗卡：有板的專案，查無此卡拒絕；板上卡放�
 });
 
 test("EXECUTORS 只留 claude/codex（W1-6-2）＋登入登出指令資料列", () => {
-  // 擴列（cursor/droid/amp）已依 2026-08-02 使用者指示移除
   assert.deepEqual(Object.keys(chat.EXECUTORS).sort(), ["claude", "codex"]);
   // 帳號切換指令：claude 走斜線命令進 REPL；codex 是實子命令（--help 核對）
   assert.equal(chat.agentAuthCommand("claude", "login"), "claude /login");
@@ -382,11 +385,11 @@ test("Bash 核可政策：safe-auto 自動放行安全唯讀頭；strict 回問�
   chat.configureChat({ permissionTimeoutMs: 180000 });
 });
 
-test("全部放行涵蓋非指令工具（2026-07-26 修正）：all＝Read／外部工具自動核可；trust 不涵蓋", async () => {
+test("全部放行涵蓋非指令工具：all＝Read／外部工具自動核可；trust 不涵蓋", async () => {
   const proj = "chatp_policy_all";
   chat.configureChat({ permissionTimeoutMs: 60 });
   // trust＝指令政策：外部（非指令、非檔案）工具照樣回問（逾時 deny）；
-  // 唯讀檔案工具 2026-08-02 檔案工具政策起任何政策一律放行
+  // 唯讀檔案工具任何政策一律放行
   await chat.setProjSettings(proj, { bashPolicy: "trust" });
   let r = await chat.requestPermission(proj, "c1", "mcp__playwright__browser_navigate", { url: "http://localhost" });
   assert.equal(r.behavior, "deny");
@@ -402,11 +405,11 @@ test("全部放行涵蓋非指令工具（2026-07-26 修正）：all＝Read／�
   chat.configureChat({ permissionTimeoutMs: 180000 });
 });
 
-test("連帶放行（2026-07-26）：切全部放行清空排隊；白名單核准掃掉同工具連發", async () => {
+test("連帶放行：切全部放行清空排隊；白名單核准掃掉同工具連發", async () => {
   const proj = "chatp_resweep";
   chat.configureChat({ permissionTimeoutMs: 8000 });
   // ① 政策切換連帶：strict 下兩個外部工具排隊 → 切 all → 兩個都自動核准
-  //   （2026-08-02 檔案工具政策後 Read/界內 Write 不再排隊，改用外部工具樣本）
+  //   （Read／界內 Write 不會排隊，故用外部工具樣本）
   await chat.setProjSettings(proj, { bashPolicy: "strict" });
   const p1 = chat.requestPermission(proj, "c1", "mcp__ext__alpha", {});
   const p2 = chat.requestPermission(proj, "c1", "mcp__ext__beta", {});

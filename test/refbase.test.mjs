@@ -84,7 +84,7 @@ test("validate_cards 依專案 refBase 檢查 refs.path 存在性與穿越", asy
     "refBase 內不存在的檔應被報檔案不存在");
 });
 
-test("refs 寫入正規化（2026-07-26 裁定）：refBase 內絕對路徑轉相對；外部絕對路徑原樣", async () => {
+test("refs 寫入正規化：refBase 內絕對路徑轉相對；外部絕對路徑原樣", async () => {
   await createProject("delta", { title: "Delta 板", refBase: REFBASE }, "test");
   // 絕對路徑落在 refBase 內 → 存成相對（正斜線）
   const r1 = await TOOLS.add_card.run(

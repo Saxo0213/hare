@@ -1,5 +1,5 @@
-// 排列/對齊純函數測試（2026-07-13：align 改「基準卡錨定」語意——使用者定案：
-// 以第一張選取卡為準，其餘對到它；不取集合平均/極值中心）。
+// 排列/對齊純函數測試。align＝基準卡錨定：以第一張選取卡為準，其餘對到它；
+// 不取集合平均/極值中心。
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { align, distribute, arrange } from "../src/arrange.mjs";

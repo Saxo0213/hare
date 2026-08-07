@@ -142,9 +142,9 @@ test("insights：低可信要害（關鍵路徑上 inferred 邊）", () => {
   assert.equal(r2.stats.lowConfidence, 0);
 });
 
-test("insights 低可信要害：平行邊——reference 排前不再漏報 prerequisite/inferred（B9-1 修正4）", () => {
+test("insights 低可信要害：平行邊——reference 排前仍抓到 prerequisite/inferred（B9-1）", () => {
   // A→B 有兩條平行邊：reference/asserted 與 prerequisite/inferred。CP＝A→B→C（prerequisite 鏈）。
-  // 舊 .find() 抓到先出現的 reference/asserted → 漏報；修正後只看 prerequisite → 應報 inferred。
+  // 選邊只認 prerequisite：平行的 reference 排在前面也不得把它蓋掉。
   const nodes = [wc("A"), wc("B"), wc("C")];
   const cpTail = { id: "bc", source: "B", target: "C", data: { relation: "prerequisite", confidenceTier: "asserted" } };
   const refFirst = { id: "ab-ref", source: "A", target: "B", data: { relation: "reference", confidenceTier: "asserted" } };
@@ -157,9 +157,9 @@ test("insights 低可信要害：平行邊——reference 排前不再漏報 pre
   assert.equal(r2.stats.lowConfidence, 1);
 });
 
-test("insights 低可信要害：平行邊——reference/inferred 排前不再誤報 prerequisite/asserted（B9-1 修正4）", () => {
+test("insights 低可信要害：平行邊——reference/inferred 排前不誤報 prerequisite/asserted（B9-1）", () => {
   // A→B 平行：prerequisite/asserted（真 CP 邊）＋ reference/inferred。CP＝A→B→C。
-  // 舊 .find() 若抓到 reference/inferred → 誤報；修正後只看 prerequisite/asserted → 不報。
+  // CP 邊只認 prerequisite/asserted；平行的 reference/inferred 不算低可信。
   const nodes = [wc("A"), wc("B"), wc("C")];
   const cpTail = { id: "bc", source: "B", target: "C", data: { relation: "prerequisite", confidenceTier: "asserted" } };
   const preAss = { id: "ab-pre", source: "A", target: "B", data: { relation: "prerequisite", confidenceTier: "asserted" } };

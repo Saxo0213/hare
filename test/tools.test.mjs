@@ -191,7 +191,7 @@ test("get_card_tree：一發回子卡樹＋相連線段＋引用 pin", async () 
   assert.ok(p1.edges.some((e) => e.from.num === "P1" && e.to.num === "P2"), "相連線段附對端編號");
 });
 
-test("add_card：子卡編號自動繼承「父號-序號」；頂層仍 N 類（2026-07-16 與前端對齊）", async () => {
+test("add_card：子卡編號自動繼承「父號-序號」；頂層仍 N 類（與前端對齊）", async () => {
   const r1 = await call("add_card", { label: "子一", parentId: "CT" });
   assert.equal(r1.card.num, "CT-1", "首張子卡＝父號-1");
   const r2 = await call("add_card", { label: "子二", parentId: "CT" });
@@ -263,7 +263,7 @@ test("pin/refCard 跨頁解析（W1-9）：帶 page 建 pin 可引用別頁卡�
   const u = await call("update_card", { card: "X2", type: "pin", refCard: "P2", page: "頁二" });
   assert.equal(u.ok, true);
   assert.equal((await call("get_card", { card: "X2", fields: ["refCard"] })).refCard, "P2");
-  // 跨頁撞號：add_card 已擋（編號制度 2026-07-18），legacy 撞號用底層寫入模擬——
+  // 跨頁撞號：add_card 本身已擋，legacy 撞號用底層寫入模擬——
   // 兩頁各有一張同號卡 → refCard 用編號指定要拋錯、訊息建議用 id
   const { updateStore } = await import("../lib/store.mjs");
   await updateStore((d) => {
@@ -607,7 +607,7 @@ test("set_region_result：找不到的 R 編號報錯", async () => {
   await assert.rejects(() => call("set_region_result", { card: "N2", region: "R9", image }), /找不到範圍框/);
 });
 
-test("validateToolArgs：缺必填/未知參數明確報錯（q vs query 事故防線）", async () => {
+test("validateToolArgs：缺必填/未知參數明確報錯（例如 q 拼成 query）", async () => {
   const { validateToolArgs } = await import("../lib/tools.mjs");
   const t = TOOLS.search_cards;
   assert.match(validateToolArgs(t, { q: "F3" }) || "", /缺少必要參數：query/);
@@ -616,7 +616,7 @@ test("validateToolArgs：缺必填/未知參數明確報錯（q vs query 事故�
   assert.equal(validateToolArgs(t, { query: "F3", project: "x", page: "y" }), null); // 注入參數合法
 });
 
-test("編號制度（2026-07-18 裁定）：cat 指定分類系統自編；手動 num 撞號拒絕（add/update）", async () => {
+test("編號制度：cat 指定分類系統自編；手動 num 撞號拒絕（add/update）", async () => {
   // cat：P 類已有 P1..P3 → 自編 P4
   const r = await call("add_card", { label: "分類自編", cat: "P" });
   assert.equal(r.card.num, "P4");

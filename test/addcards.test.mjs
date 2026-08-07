@@ -1,4 +1,4 @@
-// add_cards（批次建卡＋拉線，B10，2026-07-22）回歸測試：單元＋JSON-RPC 實跑。
+// add_cards（批次建卡＋拉線，B10）回歸測試：單元＋JSON-RPC 實跑。
 // 單一 rev、批內 key wiring、先引用後定義報錯、混用 key 與既有卡號、cat 自動連號、
 // 整批失敗不落半套、上限防呆、refs hint 彙整。零依賴；HARE_DATA_PATH 隔離到暫存檔。
 import { test, beforeEach, after } from "node:test";

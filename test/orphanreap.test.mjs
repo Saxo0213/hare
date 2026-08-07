@@ -1,4 +1,4 @@
-// 孤兒 agent 行程回收（HARE 0a9fa9e5，2026-08-02 SlimeHunter 雙寫事故）：
+// 孤兒 agent 行程回收（HARE 0a9fa9e5）：
 // 登記檔＝data/chat/agent-pids.json；死 pid/身分不吻合＝放過；活的 node 行程＝整樹終止。
 // 隔離：HARE_DATA_DIR 溫暫存，先設 env 再 import。
 import { test, after } from "node:test";

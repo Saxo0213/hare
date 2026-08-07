@@ -1,6 +1,6 @@
 // B4 刪除守衛回歸測試：伺服器端刪除墓碑持久化＋板世代（rev）檢核。
-// 情境（2026-07-13 實測 bug）：analyze 重生成板後，stale 瀏覽器分頁的合併推送
-// 把「別人已刪的舊卡」當新增卡 upsert 回來。修法＝墓碑＋client 自報 rev 檢核。
+// 情境：analyze 重生成板後，stale 瀏覽器分頁的合併推送會把「別人已刪的舊卡」
+// 當新增卡 upsert 回來；墓碑＋client 自報 rev 檢核擋掉它。
 // 零依賴：mergeBoard/recordTombs 純函數直測＋delete_card 落墓碑整合測。
 import { test, beforeEach, after } from "node:test";
 import assert from "node:assert/strict";

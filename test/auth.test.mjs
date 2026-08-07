@@ -204,7 +204,7 @@ test("admin 工具經 mcp-http：預設專案設 admin token 後，create_projec
   }
 });
 
-/* ---------- 通道專案綁定（2026-07-26 使用者回報：對話 agent 把卡建去別的專案） ---------- */
+/* ---------- 通道專案綁定：對話 agent 建的卡必須落在綁定專案 ---------- */
 test("chatProject 綁定：省略 project＝落綁定專案；明確指定者優先", async () => {
   await createProject("bindproj", { title: "綁定測試" });
   const nodesOf = (d) => (Array.isArray(d?.pages) ? d.pages : [{ nodes: d?.nodes || [] }])

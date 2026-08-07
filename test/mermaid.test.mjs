@@ -1,4 +1,4 @@
-// import_mermaid（S7-5，2026-07-18）：Mermaid flowchart 子集 → 新分頁卡片＋連線。
+// import_mermaid（S7-5）：Mermaid flowchart 子集 → 新分頁卡片＋連線。
 // 隔離沿 listtasks.test 慣例：HARE_DATA_PATH 指暫存檔、先設 env 再 dynamic import。
 import { test, beforeEach, after } from "node:test";
 import assert from "node:assert/strict";

@@ -1,4 +1,4 @@
-// 檔案工具政策（HARE f11ea110，2026-08-02 使用者裁定「改個檔案不該還要核准」）：
+// 檔案工具政策（HARE f11ea110）：
 // 唯讀工具一律放行；編輯工具界內（worktree/refBase）放行、界外回問；trust/all 全放。
 // 隔離：HARE_DATA_DIR 溫暫存（settings/permissions 皆落此），先設 env 再 import。
 import { test, after } from "node:test";

@@ -26,7 +26,7 @@ const libMjs = readdirSync(LIB_DIR).filter((f) => f.endsWith(".mjs"));
 
 test("analyzeCodebase(lib)：lib 容器 + 每個 .mjs 一張檔案子卡，count 相符", () => {
   // perDir 拉高＝測「每檔一卡」的映射本身，與 lib/ 實際檔數脫鉤
-  // （2026-08-02 lib 達 26 檔撞上預設 25 聚合上限；聚合行為由 perDir 專屬測試涵蓋）
+  // （檔數超過預設 25 會觸發聚合；聚合行為由 perDir 專屬測試涵蓋）
   const { nodes, stats } = analyzeCodebase(LIB_DIR, { imports: false, perDir: 500 });
   // 頂層容器＝lib 目錄
   const containers = nodes.filter((n) => n.data?.kind === "dir");
@@ -43,7 +43,7 @@ test("analyzeCodebase(lib)：lib 容器 + 每個 .mjs 一張檔案子卡，count
   fileCards.forEach((n) => {
     assert.equal(n.parentId, root.id);
     assert.equal(n.extent, "parent");
-    // 多欄網格（2026-07-13）：x＝16＋欄序×欄寬（>8 張檔案自動換欄）
+    // 多欄網格：x＝16＋欄序×欄寬（>8 張檔案自動換欄）
     assert.equal((n.position.x - 16) % 264, 0, `x=${n.position.x} 應落在網格欄位上`);
   });
 
@@ -78,7 +78,7 @@ test("analyzeCodebase：import 依賴線（正則）——tools.mjs → store.mj
   edges.forEach((e) => { assert.ok(ids.has(e.source) && ids.has(e.target)); });
 });
 
-test("巢狀（2026-07-13 二版）：根的直接子目錄各自成頂層容器＋泳道背景", () => {
+test("巢狀：根的直接子目錄各自成頂層容器＋泳道背景", () => {
   const { nodes, stats } = analyzeCodebase(REPO_ROOT, { imports: false, ignore: ["node_modules", ".git", "dist", ".claude"] });
   // lib 應是「頂層容器」（不再塞進巨型根容器）
   const libContainer = nodes.find((n) => n.data?.kind === "dir" && n.data.label === "lib" && !n.parentId);
@@ -133,7 +133,7 @@ test("analyze_codebase 工具：拒絕 default、寫進獨立專案、非破壞"
   await assert.rejects(() => TOOLS.analyze_codebase.run({ path: LIB_DIR, project: "scan1" }, CTX), /已有/);
 });
 
-/* ---------- 2026-07-13 導入流程強化：規模控制／版面估高／refBase／首用標記 ---------- */
+/* ---------- 導入流程：規模控制／版面估高／refBase／首用標記 ---------- */
 import { mkdirSync, writeFileSync } from "node:fs";
 
 // 建一個受控的假 codebase：
@@ -224,7 +224,7 @@ test("導入標記：analyze_codebase 設 refBase＝分析根、meta.onboarded�
   assert.ok(cur.meta?.onboarded, "meta.onboarded 應存在");
   assert.equal(cur.meta.onboarded.by, "test");
   assert.equal(cur.meta.refBase, FAKE.split("\\").join("/"));
-  // 機械板本身不預種導入說明卡（2026-07-16 使用者裁定：分析結果頁只留結果本體）——
+  // 機械板本身不預種導入說明卡：分析結果頁只留結果本體——
   // 入職系統 M3 的 G0 導覽卡另落「導覽」分頁，不在機械板上。
   const guide = board.nodes.find((n) => /^G\d+$/i.test((n.data?.num || "").trim()));
   assert.equal(guide, undefined, "機械板不應有 G 類導入說明卡");
@@ -235,7 +235,7 @@ test("導入標記：analyze_codebase 設 refBase＝分析根、meta.onboarded�
   assert.equal(rb.split("\\").join("/"), FAKE.split("\\").join("/"));
 });
 
-/* ---------- 2026-07-13 新卡型：依賴卡（dep）／資源卡（res） ---------- */
+/* ---------- 卡型：依賴卡（dep）／資源卡（res） ---------- */
 test("資源卡：無程式碼的目錄（assets）→ res 卡，listing 列內容、refs 指向資料夾、不建子卡", () => {
   const { nodes, stats } = analyzeCodebase(FAKE, { imports: false });
   const res = nodes.find((n) => n.type === "res" && n.data.label === "assets");
@@ -246,7 +246,7 @@ test("資源卡：無程式碼的目錄（assets）→ res 卡，listing 列內�
   assert.ok(stats.resCount >= 1);
 });
 
-/* ---------- 2026-07-13 介面掃描（scan_interfaces 資料工具） ---------- */
+/* ---------- 介面掃描（scan_interfaces 資料工具） ---------- */
 test("scanInterfaces：exports 宣告與 import 符號（含 as 別名、整包引入）", async () => {
   const { scanInterfaces } = await import("../lib/analyze.mjs");
   const IF = join(TMP, "iface");
@@ -335,7 +335,7 @@ test("scan_interfaces 工具：path 掃描回傳事實、不寫入任何專案",
   assert.ok(tools.imports.some((i) => i.from === "./analyze.mjs" && i.symbols.includes("scanInterfaces")));
 });
 
-/* ---------- 2026-07-13 河道分類 v3：rank 分帶＋跨帶節點卡代理 ---------- */
+/* ---------- 河道分類：rank 分帶＋跨帶節點卡代理 ---------- */
 // lanesfx/：a → b → c 依賴鏈（a 另直接 import c ＝ 跨兩帶，應改代理卡）
 const LANESFX = join(TMP, "lanesfx");
 mkdirSync(join(LANESFX, "a"), { recursive: true });
@@ -382,7 +382,7 @@ test("依賴卡：外部 import（node:fs/react/@scope）→「外部依賴」�
   assert.ok(box.data.num && react.data.num?.startsWith(box.data.num));
 });
 
-/* ---------- 2026-07-17 依賴線多語言（S7-2 DEP_LANGS 表格化） ---------- */
+/* ---------- 依賴線多語言（S7-2 DEP_LANGS 表格化） ---------- */
 const dlFile = (nodes, refPath) => nodes.find((n) => n.data?.refs?.[0]?.path === refPath)?.id;
 const dlEdge = (edges, s, t) => edges.some((e) => e.source === s && e.target === t);
 const dlDeps = (nodes) => {

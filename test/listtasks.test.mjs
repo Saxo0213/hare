@@ -1,4 +1,4 @@
-// list_tasks（2026-07-18 使用者需求）：任務視圖——只回帶開放任務的卡。
+// list_tasks：任務視圖——只回帶開放任務的卡。
 // 隔離沿 claim.test 慣例：BANLU_DATA_PATH 指暫存檔、先設 env 再 dynamic import。
 import { test, beforeEach, after } from "node:test";
 import assert from "node:assert/strict";

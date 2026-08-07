@@ -138,7 +138,7 @@ test("MCP 工具：list_projects / create_project / add_card 帶 project 隔離"
   assert.equal(ov.data_file, dataPathFor("toolpj"));
 });
 
-/* ---------- 2026-07-13 專案管理頁配套：封存/解封＋清單欄位（refBase/langs） ---------- */
+/* ---------- 專案管理頁配套：封存/解封＋清單欄位（refBase/langs） ---------- */
 test("archive_project：封存後清單不列、檔案搬 data/archive/；unarchive 還原", async () => {
   await TOOLS.create_project.run({ id: "arctest", title: "封存測試" }, { writer: "test" });
   const r = await TOOLS.archive_project.run({ id: "arctest" }, { writer: "test" });
@@ -207,7 +207,7 @@ test("整體資料觀：不帶 page＝列舉全專案（附分頁名）；跨頁
   const lc = await TOOLS.list_cards.run({ project: "pgproj" }, { writer: "test" });
   assert.ok(lc.cards.some((c) => c.page === "架構"), "列舉應含其他分頁卡片並附 page 名");
   assert.ok(lc.cards.some((c) => c.page === "主板" && c.label === "首頁卡"));
-  // 明確製造跨頁撞號（add_card 已擋撞號——編號制度 2026-07-18，legacy 撞號以底層寫入模擬）→
+  // 明確製造跨頁撞號（add_card 本身已擋，legacy 撞號以底層寫入模擬）→
   // 不帶 page 點名應丟歧義錯，不准靜默拿錯卡
   const { updateStore } = await import("../lib/store.mjs");
   await updateStore((d) => {
@@ -230,7 +230,7 @@ test("analyze_codebase 帶 page：在既有專案長出分析分頁；同頁有�
   const pg = cur.pages.find((p) => p.name === "架構二");
   assert.ok(pg, "應長出「架構二」分頁");
   assert.ok(!pg.nodes.some((n) => /^G\d+$/.test(n.data?.num || "")),
-    "不預種導入說明卡（2026-07-16 使用者裁定：分析板只留結果本體）");
+    "不預種導入說明卡：分析板只留結果本體");
   // 分類跨分頁唯一：架構二的類別不得與 架構/主板 既有類別重複
   const catsOf = (p) => new Set((p.nodes || []).map((n) => /^([A-Za-z]+)/.exec(n.data?.num || "")?.[1]).filter(Boolean));
   const newCats = [...catsOf(pg)].filter((c) => c !== "G");
@@ -336,7 +336,7 @@ test("pageOps merge（刪除三選之合併）：整頁卡/線搬到目標頁空
   assert.equal(cur.pages.length, 2, "拒絕後兩頁都應原樣保留");
 });
 
-test("delete_card 懸空 pin 警示（2026-07-26）：刪被引用卡回應點名 pin；無引用不附欄位", async () => {
+test("delete_card 懸空 pin 警示：刪被引用卡回應點名 pin；無引用不附欄位", async () => {
   await createProject("pindang", { title: "懸空測試" }, "test");
   await TOOLS.add_card.run({ label: "本尊", project: "pindang" }, { writer: "test" });
   await TOOLS.add_card.run({ label: "圖釘", type: "pin", refCard: "本尊", project: "pindang" }, { writer: "test" });
